@@ -1,0 +1,12 @@
+# dependencies
+node_modules/
+
+# SQLite database (generated at runtime)
+data/
+
+# logs / env
+*.log
+.env
+
+# local benchmark artifacts (competitor clone used for the perf comparison)
+_bench_competitor/

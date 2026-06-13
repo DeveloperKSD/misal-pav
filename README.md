@@ -7,7 +7,7 @@ A demo B2B marketplace with an AI-powered sourcing assistant, built with Node.js
 ## What's inside
 
 ```
-tradenest/
+misal-pav/
 ├── index.html       — frontend UI
 ├── app.js           — frontend logic (search, filters, cart, chat)
 ├── styles.css       — all styles
@@ -37,7 +37,7 @@ tradenest/
 
 ```bash
 git clone https://github.com/yourname/tradenest.git
-cd tradenest
+cd misal-pav
 ```
 
 Or if you downloaded a ZIP, extract it and open a terminal in the folder.

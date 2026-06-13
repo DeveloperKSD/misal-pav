@@ -16,6 +16,7 @@ tradenest/
 ├── images/          — product photos
 ├── data/            — auto-created, holds chat_history.db
 └── package.json
+└── package-lock.json
 ```
 
 ---

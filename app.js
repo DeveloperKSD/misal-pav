@@ -980,7 +980,8 @@ function openModal(id) {
           </span>
           <div class="assist-meta">
             <b>Sourcing Assistant</b>
-            <span>AI · ask about this product</span>
+            <span>AI responses may be inaccurate. Verify pricing and specs with the supplier before ordering.
+</span>
           </div>
         </div>
         <div class="assist-log" id="assistLog"></div>
@@ -1065,13 +1066,56 @@ function openModal(id) {
     }, delay);
   };
   const chatId = chatIdFor(p.id);
-  const ask = async (text) => {
-    pushMsg("user", text.replace(/</g, "&lt;"));
-    const res = await apiAddMessage(chatId, p.id, "user", text);
-    const reply = assistantReply(p, text, res.bargainCount || 0);
-    botSay(reply);
-    apiAddMessage(chatId, p.id, "bot", reply);
+
+let lastAsk = 0;
+const ask = async (text) => {
+  if (Date.now() - lastAsk < 1000) return;
+  lastAsk = Date.now();
+
+  pushMsg("user", text.replace(/</g, "&lt;"));
+  await apiAddMessage(chatId, p.id, "user", text);
+
+  input.disabled = true;
+  input.placeholder = "Thinking…";
+
+  const productContext = {
+    name: p.name,
+    supplier: p.supplier,
+    origin: p.origin,
+    category: catById(p.cat).label,
+    moq: p.moq,
+    leadTime: p.lead,
+    verified: p.verified,
+    readyToShip: p.ready,
+    rating: p.rating,
+    reviews: p.reviews,
+    pricingTiers: p.tiers,
+    deal: p.deal ? { discountPct: p.discount, wasLow: p.listLow, wasHigh: p.listHigh } : null,
   };
+
+  try {
+    const r = await fetch("/api/ai-chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chatId, userMessage: text, productContext }),
+    });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const data = await r.json();
+    if (!data.reply) throw new Error("no reply");
+    const sourceTag = `<span style="font-size:10px;opacity:0.4;display:block;margin-top:4px">✦ Gemini 2.5 Flash</span>`;
+    const delay = Math.min(300 + data.reply.length * 1.2, 1800);
+    botSay(data.reply + sourceTag, delay);
+    apiAddMessage(chatId, p.id, "bot", data.reply);
+  } catch (err) {
+    console.error("ask() failed:", err);
+    botSay(`<span style="color:var(--color-text-danger);font-size:12px">⚠ Assistant unavailable, try again.</span>`);
+  } finally {
+    input.disabled = false;
+    input.placeholder = "Ask anything about this product…";
+    input.focus();
+  }
+};
+
   // resume saved conversation, or greet + persist the greeting
   (async () => {
     const history = await apiGetMessages(chatId);

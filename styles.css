@@ -350,7 +350,7 @@ h1, h2, h3, h4 { margin: 0; }
 .info-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .title {
   font-size: 14px; font-weight: 500; color: var(--ink); line-height: 1.35;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  display: -webkit-box; ;
   min-height: 2.7em;
 }
 .card:hover .title { color: var(--brand-ink); }
